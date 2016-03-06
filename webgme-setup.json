@@ -1,0 +1,29 @@
+{
+  "components": {
+    "visualizers": {
+      "BreadcrumbHeader": {
+        "src": "panels/BreadcrumbHeader/BreadcrumbHeaderPanel",
+        "title": "BreadcrumbHeader",
+        "panel": "src/visualizers/panels/BreadcrumbHeader",
+        "secondary": true
+      }
+    },
+    "layouts": {
+      "TestLayout": {
+        "src": "src/layouts/TestLayout"
+      }
+    },
+    "addons": {},
+    "decorators": {},
+    "plugins": {},
+    "seeds": {}
+  },
+  "dependencies": {
+    "visualizers": {},
+    "layouts": {},
+    "addons": {},
+    "decorators": {},
+    "plugins": {},
+    "seeds": {}
+  }
+}
