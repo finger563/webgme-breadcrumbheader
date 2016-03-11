@@ -33,7 +33,7 @@ define([
             baseId,
             nodes = [];
 
-        if (nodeId === null) {
+        if (!node) {
             return;
         }
 
