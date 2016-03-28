@@ -1,7 +1,15 @@
 # Configuration
 
-Overwrite/append the [default webgme configuration](https://github.com/webgme/webgme/blob/master/config/config.default.js) in `config.default.js`.
+Configuring the BreadcrumbHeader can be done in `components.json` where the `style` key is set to one of the following:
+- simple (default)
+- arrows
 
-When adding your own paths, make sure to either use `__dirname` or a relative path which will be resolved from your repository's root.
+## Example Configuration
 
-To load another configuration set the environment variable `NODE_ENV` to the wanted configuration, e.g. on windows `set NODE_ENV = app` will load `config.app.js`.
+```
+{
+    "BreadCrumbHeader": {
+        "style": "simple"
+    }
+}
+```

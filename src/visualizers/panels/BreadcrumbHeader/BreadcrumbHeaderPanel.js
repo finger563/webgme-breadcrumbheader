@@ -101,7 +101,8 @@ define([
         // Node nav bar
         nodePath = new NodePathNavigator({
             container: $('<div/>', {class: 'toolbar-container'}),
-            client: this._client
+            client: this._client,
+            logger: this.logger
         });
         this.$el.append(nodePath.$el);
         WebGMEGlobal.Toolbar = toolbar.createToolbar($('<div/>'));
