@@ -4,16 +4,28 @@ define([
     CONSTANTS
 ) {
 
+    var DEFAULT_CONFIG = {
+            style: 'simple'
+        },
+        STYLES = {
+            arrows: 'panels/BreadcrumbHeader/styles/arrows.css'
+        };
+
     var ProjectNavWithActiveNode = function (options) {
         this.$el = options.container;
         this.client = options.client;
+        this.logger = options.logger.fork('NodePath');
+
+        // Load the config
+        this.config = WebGMEGlobal.componentSettings[this.getComponentId()] ||
+            DEFAULT_CONFIG;
+
         this.initialize();
     };
 
     ProjectNavWithActiveNode.prototype.initialize = function() {
         var breadcrumbContainer = document.createElement('ol');
 
-        breadcrumbContainer.setAttribute('class', 'breadcrumb');
         breadcrumbContainer.setAttribute('style', 'height:100%');
         this.pathContainer = $(breadcrumbContainer);
         this.$el.append(breadcrumbContainer);
@@ -21,6 +33,25 @@ define([
         // Set the activeNode
         WebGMEGlobal.State.on('change:' + CONSTANTS.STATE_ACTIVE_OBJECT,
             this.updatePath, this);
+
+        // Load the css
+        if (this.config.style !== DEFAULT_CONFIG.style) {
+            // load the style or assume requirejs path
+            var cssPath = STYLES[this.config.style] || this.config.style;
+
+            require(['css!' + cssPath], function() {
+                breadcrumbContainer.setAttribute('class', 'breadcrumb-nodes');
+            }, function(err) {
+                this.logger.warn('Could not load css at ' + cssPath + ': ' + err);
+                breadcrumbContainer.setAttribute('class', 'breadcrumb');
+            });
+        } else {
+            breadcrumbContainer.setAttribute('class', 'breadcrumb');
+        }
+    };
+
+    ProjectNavWithActiveNode.prototype.getComponentId = function() {
+        return 'BreadCrumbHeader';
     };
 
     ProjectNavWithActiveNode.prototype.clear = function(model, nodeId) {
@@ -50,10 +81,9 @@ define([
             node = this.client.getNode(nodeId);
         }
 
-        for (var i = nodes.length-1; i > 0; i--) {
+        for (var i = nodes.length-1; i >= 0; i--) {
             this.addNode(nodes[i]);
         }
-        this.addNode(nodes[0], true);
     };
 
     ProjectNavWithActiveNode.prototype.addNode = function(nodeObj, isActive) {
