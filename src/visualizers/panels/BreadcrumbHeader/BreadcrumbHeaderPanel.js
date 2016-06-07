@@ -60,7 +60,9 @@ define([
     };
 
     BreadcrumbHeaderPanel.prototype.getDefaultConfig = function () {
-        return {};
+        return { 
+	    disableUserProfile: false
+	};
     };
 
     BreadcrumbHeaderPanel.prototype.getComponentId = function () {
