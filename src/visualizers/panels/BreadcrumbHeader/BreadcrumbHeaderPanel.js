@@ -5,50 +5,21 @@
  */
 
 define([
+    'js/Panels/Header/HeaderPanel',
     'js/PanelBase/PanelBase',
-    'js/Widgets/ProjectTitle/ProjectTitleWidget',
-    'js/Widgets/UserProfile/UserProfileWidget',
     'js/Toolbar/Toolbar',
-    'js/Panels/Header/ProjectNavigatorController',
     './NodePathNavigator',
     'js/Panels/Header/DefaultToolbar',
-    'js/Utils/WebGMEUrlManager'
-], function (PanelBase,
-             ProjectTitleWidget,
-             UserProfileWidget,
-             toolbar,
-             ProjectNavigatorController,
-             NodePathNavigator,
-             DefaultToolbar,
-             WebGMEUrlManager) {
+    'js/Utils/ComponentSettings'
+], function (
+    HeaderPanel,
+    PanelBase,
+    toolbar,
+    NodePathNavigator,
+    DefaultToolbar,
+    ComponentSettings
+) {
     'use strict';
-
-    angular.module(
-        'gme.ui.headerPanel', [
-            'isis.ui.dropdownNavigator',
-            'gme.ui.ProjectNavigator'
-        ]).run(function ($rootScope, $location) {
-            // FIXME: this might not be the best place to put it...
-            if (WebGMEGlobal && WebGMEGlobal.State) {
-                WebGMEGlobal.State.on('change', function () {
-                    var searchQuery = WebGMEUrlManager.serializeStateToUrl();
-
-                    // set the state that gets pushed into the history
-                    $location.state(WebGMEGlobal.State.toJSON());
-
-                    // setting the search query based on the state
-                    $location.search(searchQuery);
-
-                    // forcing the update
-                    if (!$rootScope.$$phase) {
-                        $rootScope.$apply();
-                    }
-                });
-            } else {
-                // FIXME: this should be a hard error, we do not have a logger here.
-                console.error('WebGMEGlobal.State does not exist, cannot update url based on state changes.');
-            }
-        });
 
     var BreadcrumbHeaderPanel = function (layoutManager, params) {
         var options = {};
@@ -58,6 +29,8 @@ define([
         //call parent's constructor
         PanelBase.apply(this, [options]);
 
+        this._config = this.getDefaultConfig();
+        ComponentSettings.resolveWithWebGMEGlobal(this._config, this.getComponentId());
         this._client = params.client;
 
         //initialize UI
@@ -67,45 +40,31 @@ define([
     };
 
     //inherit from PanelBaseWithHeader
-    _.extend(BreadcrumbHeaderPanel.prototype, PanelBase.prototype);
+    _.extend(BreadcrumbHeaderPanel.prototype, HeaderPanel.prototype);
 
     BreadcrumbHeaderPanel.prototype._initialize = function () {
         //main container
-        var navBar = $('<div/>', {class: 'navbar navbar-inverse navbar-fixed-top'}),
-            navBarInner = $('<div/>', {class: 'navbar-inner'}),
-            app, projectTitleEl, userProfileEl, nodePath;
-
-        navBar.append(navBarInner);
-        this.$el.append(navBar);
-
-        // TODO: would be nice to get the app as a parameter
-        app = angular.module('gmeApp');
-
-        app.controller('ProjectNavigatorController', ProjectNavigatorController);
-
-        //project title
-        projectTitleEl = $(
-            '<div style="display: inline;" data-ng-controller="ProjectNavigatorController">' +
-            '<dropdown-navigator style="display: inline-block;" navigator="navigator"></dropdown-navigator></div>',
-            {class: 'inline'}
-        );
-        //new ProjectTitleWidget(projectTitleEl, this._client);
-        navBarInner.append(projectTitleEl);
-
-        //user info
-        navBarInner.append($('<div class="spacer pull-right"></div>'));
-        userProfileEl = $('<div/>', {class: 'inline pull-right', style: 'padding: 6px 0px;'});
-        this.defaultUserProfileWidget = new UserProfileWidget(userProfileEl, this._client);
-        navBarInner.append(userProfileEl);
+	HeaderPanel.prototype._initialize.call(this);
 
         // Node nav bar
-        nodePath = new NodePathNavigator({
+	//remove default 'toolbar-container'
+	this.$el.find('.toolbar-container').remove();
+        var nodePath = new NodePathNavigator({
             container: $('<div/>', {class: 'toolbar-container'}),
-            client: this._client
+            client: this._client,
+            logger: this.logger
         });
         this.$el.append(nodePath.$el);
         WebGMEGlobal.Toolbar = toolbar.createToolbar($('<div/>'));
         new DefaultToolbar(this._client);
+    };
+
+    BreadcrumbHeaderPanel.prototype.getDefaultConfig = function () {
+        return {};
+    };
+
+    BreadcrumbHeaderPanel.prototype.getComponentId = function () {
+        return 'BreadcrumbHeader';
     };
 
     return BreadcrumbHeaderPanel;
